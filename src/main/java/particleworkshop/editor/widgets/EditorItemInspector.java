@@ -28,9 +28,6 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 
 	public EditorItemInspector(EditorContext context)
 	{
-		// TODO:
-		// - Why is the whole inspector reloading even when not indicated by a @TypeEnum annotation
-		// - Value wrapper for colour (RGB string)
 		super();
 		_context = context;
 		

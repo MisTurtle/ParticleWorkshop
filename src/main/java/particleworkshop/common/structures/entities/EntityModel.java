@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.paint.Color;
+
+import particleworkshop.common.utils.color.ColorPropertyWrapper;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
 
 @JsonTypeInfo(
@@ -27,7 +29,7 @@ public abstract class EntityModel {
 	private SimpleObjectProperty<EntityShape> shape = new SimpleObjectProperty<>(EntityShape.LINEAR);
 	
 	@Controlled(label="Entity Color")
-	private Color color = Color.BLACK;
+	private ColorPropertyWrapper color = new ColorPropertyWrapper();
 	
 	@Controlled(label="Initial velocity")
 	private SimpleFloatProperty defaultVelocity = new SimpleFloatProperty(50);  // px / sec
@@ -40,8 +42,10 @@ public abstract class EntityModel {
 	public EntityShape getShape() { return shape.get(); }
 	public void setShape(EntityShape s) { shape.set(s); }
 	
-	//public Color getColor() { return color; }
-	//public void setColor(Color c) { color = c; }
+	public ColorPropertyWrapper getColor() { return color; }
+	public void setColor(ColorPropertyWrapper c) { color = c; }
+	public void setColor(Color c) { color = new ColorPropertyWrapper(c); }
+	public void setColor(String c) { color = new ColorPropertyWrapper(c); }
 	
 	public float getDefaultVelocity() { return defaultVelocity.get(); }
 	public void setDefaultVelocity(float v) { defaultVelocity.set(v); }

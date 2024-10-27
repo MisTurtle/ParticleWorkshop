@@ -33,10 +33,13 @@
 	-fx-padding: 10;
 }
 .item-inspector .separator {
-	-fx-padding: 5, 0, 5, 0;
+	-fx-padding: 10, 0, 10, 0;
 }
 
-.text-field, .choice-box, .list-add-button, .list-del-button {
+.text-field,
+.choice-box, 
+.list-add-button, 
+.list-del-button {
 	-fx-background-color: #202020;
 	-fx-text-fill: #CCCCCC;
 	-fx-border-color: #CCCCCC;
@@ -72,3 +75,15 @@
 	-fx-font-weight: bold;
 }
 
+.titled-pane {
+	-fx-text-fill: #CCCCCC;
+}
+.titled-pane > *.content, .titled-pane > .title {
+	-fx-background-color: #202020;
+}
+.titled-pane > .title {
+	-fx-border-color: #CCCCCC;
+	-fx-border-width: 1px;
+	-fx-border-style: solid solid dashed solid;
+	-fx-border-radius: 5px 5px 0 0;
+}

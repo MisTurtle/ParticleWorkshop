@@ -19,6 +19,7 @@ import particleworkshop.editor.widgets.inspector.InspectorWidgetFactory;
 import particleworkshop.editor.widgets.inspector.annotations.AsSlider;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
 import particleworkshop.editor.widgets.inspector.annotations.Separator;
+import particleworkshop.editor.widgets.inspector.annotations.TypeEnum;
 import particleworkshop.editor.widgets.inspector.annotations.UseFloatRange;
 
 public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
@@ -38,7 +39,7 @@ public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
 	@Controlled(label = "Entity Model", stackVertically = true)
 	private SimpleObjectProperty<EntityModel> model;
 
-	@Controlled(label="Entity Type")
+	@Controlled(label="Entity Type") @TypeEnum
 	private SimpleObjectProperty<EntityType> type;
 
 	public EditorSpawnerItem() {

@@ -355,7 +355,7 @@ public class DefaultWidgetFactory implements IWidgetFactory
 		SimpleObjectProperty<T> property = (SimpleObjectProperty<T>) field.get(obj);
 		TypeEnum isTypeEnum = field.getAnnotation(TypeEnum.class);
 		ChoiceBox<T> control = enumInput(property, enumType);
-		if(isTypeEnum == null) 
+		if(isTypeEnum != null) 
 		{
 			control.valueProperty().addListener((observer, oldV, newV) -> {
 				_inspector.reload(); // TODO : I feel like it's weird to have that check performed here, a better place should be found

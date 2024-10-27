@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class FlowingParticleModel extends EntityModel
+public class FlowingParticleModel extends EntityModel 
 {
-	
+
 }

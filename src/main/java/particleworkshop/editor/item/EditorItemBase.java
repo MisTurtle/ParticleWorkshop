@@ -11,9 +11,14 @@ import javafx.scene.layout.Region;
 import particleworkshop.common.structures.ItemBase;
 import particleworkshop.common.structures.ItemIdentifier;
 import particleworkshop.editor.widgets.inspector.InspectorWidgetFactory;
+import particleworkshop.editor.widgets.inspector.annotations.Controlled;
+import particleworkshop.editor.widgets.inspector.annotations.Separator;
 
 public abstract class EditorItemBase<T extends ItemBase> implements IEditorItem<T> {
 	
+	public static final String EVT_RELOAD_INSPECTOR = "item:reload_inspector";
+	
+	@Controlled @Separator(before=false, after=true)
 	protected SimpleStringProperty name;
 	protected SimpleLongProperty uid;
 	

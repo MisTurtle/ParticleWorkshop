@@ -1,6 +1,6 @@
 package particleworkshop.editor.widgets;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -13,12 +13,17 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import particleworkshop.common.exception.ObjectSerializationException;
 import particleworkshop.editor.EditorContext;
 import particleworkshop.editor.item.EditorItemBase;
+import particleworkshop.editor.widgets.inspector.DefaultWidgetFactory;
 
 public class EditorItemInspector extends VBox implements IEditorWidget
 {
+	private static final double DEFAULT_INSPECTOR_WIDTH = 175; // px
+	
 	private EditorContext _context;
+	private EditorItemBase<?> _selected;
 
 	public EditorItemInspector(EditorContext context)
 	{
@@ -26,27 +31,33 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 		_context = context;
 		
 		getStyleClass().add("item-inspector");
+		// setPrefWidth(DEFAULT_INSPECTOR_WIDTH);
 		getContext().addPropertyChangeListener(evt -> {
 			if(evt.getPropertyName().equals(context.EVT_SELECTED_ITEM))
-			{
-				EditorItemBase<?> newItem = (EditorItemBase<?>) evt.getNewValue();
-				if(newItem == null) getChildren().clear();
-				else {
-					ArrayList<Region> controls = newItem.generateControls();
-					for(Region c: controls)
-						bindValueChangeListener(c);
-					getChildren().setAll(controls);
-				}
-			} else if(evt.getPropertyName().equals(context.EVT_PROJECT_CHANGE) && evt.getNewValue() == null)
-			{
-				getChildren().clear();
-			}
+				_selected = (EditorItemBase<?>) evt.getNewValue();
+			else if(evt.getPropertyName().equals(context.EVT_PROJECT_CHANGE) && evt.getNewValue() == null)
+				_selected = null;
+			reload();
 		});
 	}
 	
 	@Override
 	public EditorContext getContext() {
 		return _context;
+	}
+	
+	public void reload()
+	{
+		if(_selected == null) getChildren().clear();
+		else {
+			try {
+				List<Region> widgets = DefaultWidgetFactory.getInstance(this).createWidgetsFor(_selected);
+				widgets.forEach(this::bindValueChangeListener);
+				getChildren().setAll(widgets);
+			} catch (ObjectSerializationException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	private void bindValueChangeListener(Parent parent)

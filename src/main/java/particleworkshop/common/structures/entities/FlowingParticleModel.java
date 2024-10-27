@@ -7,5 +7,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper=false)
 public class FlowingParticleModel extends EntityModel 
 {
-
+	@Override
+	public EntityType getType() {
+		return EntityType.FlowingParticle;
+	}
 }

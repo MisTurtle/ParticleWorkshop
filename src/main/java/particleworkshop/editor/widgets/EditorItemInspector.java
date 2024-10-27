@@ -10,6 +10,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -27,6 +28,10 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 
 	public EditorItemInspector(EditorContext context)
 	{
+		// TODO:
+		// - Fix recursive ValueChangeListener not working with Accordions
+		// - Style accordions
+		// - Value wrapper for colour (RGB string)
 		super();
 		_context = context;
 		
@@ -37,6 +42,7 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 				_selected = (EditorItemBase<?>) evt.getNewValue();
 			else if(evt.getPropertyName().equals(context.EVT_PROJECT_CHANGE) && evt.getNewValue() == null)
 				_selected = null;
+			else return;
 			reload();
 		});
 	}
@@ -60,9 +66,13 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 		}
 	}
 	
-	private void bindValueChangeListener(Parent parent)
+	private void bindValueChangeListener(Node node)
 	{
-		for(Node child: parent.getChildrenUnmodifiable())
+		if(node instanceof TitledPane) node = ((TitledPane) node).getContent();
+		if(node instanceof Control) { bindValueChangeListener((Control) node); return; }
+		if(!(node instanceof Parent)) return;
+		
+		for(Node child: ((Parent) node).getChildrenUnmodifiable())
 		{
 			if(child instanceof Control) bindValueChangeListener((Control) child);
 			else if(child instanceof Parent) bindValueChangeListener((Parent) child);

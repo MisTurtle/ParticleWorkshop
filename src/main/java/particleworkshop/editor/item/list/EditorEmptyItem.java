@@ -1,13 +1,9 @@
 package particleworkshop.editor.item.list;
 
-import java.util.ArrayList;
-
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.Node;
-import javafx.scene.layout.Region;
 import particleworkshop.common.structures.items.EmptyItem;
 import particleworkshop.editor.item.EditorItemBase;
-import particleworkshop.editor.widgets.inspector.InspectorWidgetFactory;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
 import particleworkshop.editor.widgets.inspector.annotations.UseIntRange;
 
@@ -25,17 +21,6 @@ public class EditorEmptyItem extends EditorItemBase<EmptyItem> {
 	public EditorEmptyItem(EmptyItem item) {
 		super(item.getIdentifier());
 		unused = new SimpleIntegerProperty(item.getUnused());
-	}
-
-	@Override
-	public ArrayList<Region> generateControls()
-	{
-		ArrayList<Region> controls = super.generateControls();
-		
-		controls.add(InspectorWidgetFactory.newSpinner("Unused", unused, 0, 100));
-		controls.add(InspectorWidgetFactory.newTextField("Test", name));
-		
-		return controls;
 	}
 
 	@Override

@@ -15,7 +15,6 @@ import particleworkshop.common.structures.entities.ThermalParticleModel;
 import particleworkshop.common.structures.items.spawners.EntitySpawnerItem;
 import particleworkshop.common.structures.items.spawners.SpawnerMode;
 import particleworkshop.editor.item.EditorItemBase;
-import particleworkshop.editor.widgets.inspector.InspectorWidgetFactory;
 import particleworkshop.editor.widgets.inspector.annotations.AsSlider;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
 import particleworkshop.editor.widgets.inspector.annotations.Separator;
@@ -63,20 +62,6 @@ public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
 				case ThermalParticle: model.set(new FlowingParticleModel(model.get())); break;
 			}
 		});
-	}
-
-	@Override
-	public ArrayList<Region> generateControls() {
-		ArrayList<Region> controls = super.generateControls();
-
-		controls.add(InspectorWidgetFactory.newChoiceBox("Mode", mode, SpawnerMode.class));
-		controls.add(InspectorWidgetFactory.newFloatInput("Frequency", frequency));
-		controls.add(
-				InspectorWidgetFactory.newList("Directions", directions, InspectorWidgetFactory::newFloatInput, () -> {
-					return new SimpleFloatProperty(0.f);
-				}));
-		
-		return controls;
 	}
 
 	@Override

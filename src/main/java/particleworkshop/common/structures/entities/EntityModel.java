@@ -29,7 +29,7 @@ public abstract class EntityModel {
 	private SimpleObjectProperty<EntityShape> shape = new SimpleObjectProperty<>(EntityShape.LINEAR);
 	
 	@Controlled(label="Entity Color")
-	private ColorPropertyWrapper color = new ColorPropertyWrapper();
+	private SimpleObjectProperty<ColorPropertyWrapper> color = new SimpleObjectProperty<>(new ColorPropertyWrapper());
 	
 	@Controlled(label="Initial velocity")
 	private SimpleFloatProperty defaultVelocity = new SimpleFloatProperty(50);  // px / sec
@@ -37,15 +37,29 @@ public abstract class EntityModel {
 	@Controlled(label="Max Velocity")
 	private SimpleFloatProperty maxVelocity = new SimpleFloatProperty(100);  // px / sec
 	
+	public EntityModel()
+	{
+		this(null);
+	}
+	
+	public EntityModel(EntityModel o)
+	{
+		if(o == null) return;
+		setShape(o.getShape());
+		setColor(o.getColor());
+		setDefaultVelocity(o.getDefaultVelocity());
+		setMaxVelocity(o.getMaxVelocity());
+	}
+	
 	public abstract EntityType getType();
 	
 	public EntityShape getShape() { return shape.get(); }
 	public void setShape(EntityShape s) { shape.set(s); }
 	
-	public ColorPropertyWrapper getColor() { return color; }
-	public void setColor(ColorPropertyWrapper c) { color = c; }
-	public void setColor(Color c) { color = new ColorPropertyWrapper(c); }
-	public void setColor(String c) { color = new ColorPropertyWrapper(c); }
+	public ColorPropertyWrapper getColor() { return color.get(); }
+	public void setColor(ColorPropertyWrapper c) { color.set(c); }
+	public void setColor(Color c) { color.set(new ColorPropertyWrapper(c)); }
+	public void setColor(String c) { color.set(new ColorPropertyWrapper(c)); }
 	
 	public float getDefaultVelocity() { return defaultVelocity.get(); }
 	public void setDefaultVelocity(float v) { defaultVelocity.set(v); }

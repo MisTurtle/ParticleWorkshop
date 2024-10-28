@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
@@ -23,6 +24,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import particleworkshop.common.exception.MissingAnnotationException;
 import particleworkshop.common.exception.ObjectSerializationException;
+import particleworkshop.common.utils.color.ColorPropertyWrapper;
 import particleworkshop.editor.widgets.EditorItemInspector;
 import particleworkshop.editor.widgets.inspector.annotations.AsSlider;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
@@ -33,10 +35,6 @@ import particleworkshop.editor.widgets.inspector.annotations.UseRegex;
 
 public class DefaultWidgetFactory implements IWidgetFactory
 {
-	private static final double DEFAULT_CONTROL_WIDTH = 125; // px
-	private static final double DEFAULT_V_CONTROL_WIDTH = 150; // px	
-	private static final double DEFAULT_HORIZONTAL_SPACING = 10; // px
-	private static final double DEFAULT_VERTICAL_SPACING = 10; // px
 	
 	private static DefaultWidgetFactory _instance = null;
 	
@@ -205,6 +203,13 @@ public class DefaultWidgetFactory implements IWidgetFactory
 		subject.bind(cb.valueProperty());
 		return cb;
 	}
+	
+	@Override
+	public ColorPicker colorInput(SimpleObjectProperty<ColorPropertyWrapper> subject) {
+		ColorPicker cp = new ColorPicker(subject.get().getColor());
+		cp.valueProperty().addListener((observer, oldV, newV) -> subject.set(new ColorPropertyWrapper(newV)));
+		return cp;
+	}
 
 	@Override
 	public Separator separator() {
@@ -268,11 +273,11 @@ public class DefaultWidgetFactory implements IWidgetFactory
 			if(property.get() == null) return null;
 			
 			Class<?> pClass = property.get().getClass();
-			if(pClass.isEnum()) { output = createEnumChoice(obj, field, (Class) pClass); }
-			else{
-				// Create a retractable titled pane object that holds the object's data
+			if(pClass.isEnum()) output = createEnumChoice(obj, field, (Class) pClass);
+			else if(pClass == ColorPropertyWrapper.class) output = colorInput((SimpleObjectProperty<ColorPropertyWrapper>) property);
+			else{ // Create a retractable titled pane object that holds the object's data
 				output = new TitledPane();
-				((TitledPane) output).setContent(new VBox(createWidgetsFor(property.get()).toArray(new Region[0])));
+				((TitledPane) output).setContent(new VBox(DEFAULT_VERTICAL_SPACING, createWidgetsFor(property.get()).toArray(new Region[0])));
 			}
 		} else return null;
 		

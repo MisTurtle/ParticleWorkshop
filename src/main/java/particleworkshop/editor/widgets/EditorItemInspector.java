@@ -18,6 +18,7 @@ import particleworkshop.common.exception.ObjectSerializationException;
 import particleworkshop.editor.EditorContext;
 import particleworkshop.editor.item.EditorItemBase;
 import particleworkshop.editor.widgets.inspector.DefaultWidgetFactory;
+import particleworkshop.editor.widgets.inspector.IWidgetFactory;
 
 public class EditorItemInspector extends VBox implements IEditorWidget
 {
@@ -55,7 +56,7 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 			try {
 				List<Region> widgets = DefaultWidgetFactory.getInstance(this).createWidgetsFor(_selected);
 				widgets.forEach(this::bindValueChangeListener);
-				getChildren().setAll(widgets);
+				getChildren().setAll(new VBox(IWidgetFactory.DEFAULT_VERTICAL_SPACING, widgets.toArray(Region[]::new)));
 			} catch (ObjectSerializationException e) {
 				e.printStackTrace();
 			}

@@ -8,6 +8,9 @@ public class BoidsEntityModel extends EntityModel
 	@Controlled(label="Group ID")
 	private SimpleIntegerProperty groupId = new SimpleIntegerProperty(0);
 	
+	public BoidsEntityModel() { super(null); }
+	public BoidsEntityModel(EntityModel o) { super(o); }
+	
 	public int getGroupId() { return groupId.get(); }
 	public void setGroupId(int id) { groupId.set(id); }
 

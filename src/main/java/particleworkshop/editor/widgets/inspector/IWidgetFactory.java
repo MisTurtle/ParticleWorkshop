@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
@@ -16,9 +17,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import particleworkshop.common.exception.ObjectSerializationException;
+import particleworkshop.common.utils.color.ColorPropertyWrapper;
 
 public interface IWidgetFactory 
 {
+	public static final double DEFAULT_CONTROL_WIDTH = 125; // px
+	public static final double DEFAULT_V_CONTROL_WIDTH = 150; // px	
+	public static final double DEFAULT_HORIZONTAL_SPACING = 10; // px
+	public static final double DEFAULT_VERTICAL_SPACING = 5; // px
+	
 	HBox labelHorizontally(String label, Region target);
 	HBox labelHorizontally(Label label, Region target);
 	VBox labelVertically(String label, Region target);
@@ -43,6 +50,7 @@ public interface IWidgetFactory
 	Spinner<Integer> numberSpinner(SimpleIntegerProperty subject, int min, int max, int step);
 	
 	<T extends Enum<T>> ChoiceBox<T> enumInput(SimpleObjectProperty<T> subject, Class<T> enumType);
+	ColorPicker colorInput(SimpleObjectProperty<ColorPropertyWrapper> subject);
 
 	Separator separator();
 	

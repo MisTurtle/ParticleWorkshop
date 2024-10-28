@@ -6,7 +6,11 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class ThermalParticleModel extends EntityModel
-{@Override
+{
+	public ThermalParticleModel() { super(null); }
+	public ThermalParticleModel(EntityModel o) { super(o); }
+	
+	@Override
 	public EntityType getType() {
 		return EntityType.ThermalParticle;
 	}

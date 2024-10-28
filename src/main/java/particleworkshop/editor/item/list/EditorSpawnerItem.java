@@ -58,9 +58,9 @@ public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
 		type.addListener((observer, oldV, newV) -> {
 			switch(newV)
 			{
-				case BoidsEntity: model.set(new BoidsEntityModel()); break;
-				case FlowingParticle: model.set(new ThermalParticleModel()); break;
-				case ThermalParticle: model.set(new FlowingParticleModel()); break;
+				case BoidsEntity: model.set(new BoidsEntityModel(model.get())); break;
+				case FlowingParticle: model.set(new ThermalParticleModel(model.get())); break;
+				case ThermalParticle: model.set(new FlowingParticleModel(model.get())); break;
 			}
 		});
 	}

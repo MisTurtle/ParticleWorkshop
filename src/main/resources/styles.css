@@ -39,7 +39,10 @@
 .text-field,
 .choice-box, 
 .list-add-button, 
-.list-del-button {
+.list-del-button,
+.color-picker,
+.color-palette,
+.color-rect-pane {
 	-fx-background-color: #202020;
 	-fx-text-fill: #CCCCCC;
 	-fx-border-color: #CCCCCC;
@@ -86,4 +89,7 @@
 	-fx-border-width: 1px;
 	-fx-border-style: solid solid dashed solid;
 	-fx-border-radius: 5px 5px 0 0;
+}
+.color-palette > * {
+	-fx-text-fill: #CCCCCC;
 }

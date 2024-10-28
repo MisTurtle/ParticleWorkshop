@@ -28,6 +28,7 @@ import particleworkshop.common.utils.color.ColorPropertyWrapper;
 import particleworkshop.editor.widgets.EditorItemInspector;
 import particleworkshop.editor.widgets.inspector.annotations.AsSlider;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
+import particleworkshop.editor.widgets.inspector.annotations.HorizontalBlock;
 import particleworkshop.editor.widgets.inspector.annotations.TypeEnum;
 import particleworkshop.editor.widgets.inspector.annotations.UseFloatRange;
 import particleworkshop.editor.widgets.inspector.annotations.UseIntRange;
@@ -225,6 +226,11 @@ public class DefaultWidgetFactory implements IWidgetFactory
 		 */
 		List<Region> regions = new ArrayList<Region>();
 		Class<?> objClass = obj.getClass();
+
+
+		HorizontalBlock hBlock = null;
+		int separatorCount = 0;
+		List<Region> horizontalStackingRegions = new ArrayList<Region>();
 		
 		while(objClass != null)
 		{
@@ -234,14 +240,39 @@ public class DefaultWidgetFactory implements IWidgetFactory
 				field.setAccessible(true);
 				// Check whether the field wants to be modified from the editor
 				try {
-					particleworkshop.editor.widgets.inspector.annotations.Separator separatorProp = field.getAnnotation(particleworkshop.editor.widgets.inspector.annotations.Separator.class);
-					
-					if(separatorProp != null && separatorProp.before()) classRegions.add(separator());	
 					if(field.getAnnotation(Controlled.class) == null) continue;
 					
+					if(hBlock == null) hBlock = field.getAnnotation(HorizontalBlock.class);
+					particleworkshop.editor.widgets.inspector.annotations.Separator separatorProp = field.getAnnotation(particleworkshop.editor.widgets.inspector.annotations.Separator.class);
+					
+					// Add a separator before the element
+					if(separatorProp != null && separatorProp.before()) { horizontalStackingRegions.add(separator()); ++separatorCount; }	
+					
+					// Create the widget
 					Region output = createWidgetFor(obj, field);
-					if(output != null) classRegions.add(output);	
-					if(separatorProp != null && separatorProp.after() && (!separatorProp.before() || output != null)) classRegions.add(separator()); // Don't double the separator if the field could not be serialized. This is kinda useless but oh well
+					if(output == null) continue;
+					
+					// Add this widget to the horizontal stack
+					horizontalStackingRegions.add(output);
+					
+					// Check if the horizontal block should be flushed
+					int blockCount = horizontalStackingRegions.size() - separatorCount;
+					
+					// Verify if we've reached the end of the horizontal block
+					if(hBlock == null || blockCount >= hBlock.size())
+					{
+						if(hBlock == null) classRegions.addAll(horizontalStackingRegions);
+						else if(blockCount >= hBlock.size()) 
+						{
+							if(hBlock.label().isBlank()) classRegions.add(packHorizontally(horizontalStackingRegions.toArray(Region[]::new)));
+							else classRegions.add(labelHorizontally(hBlock.label(), packHorizontally(horizontalStackingRegions.toArray(Region[]::new))));
+						}
+						horizontalStackingRegions.clear(); separatorCount = 0; hBlock = null;
+					}
+					
+					// Add a separator after this widget if requested
+					if(separatorProp != null && separatorProp.after() && (!separatorProp.before() || output != null)) { classRegions.add(separator()); }
+					
 				}catch(Exception e) {
 					throw new ObjectSerializationException(e);
 				}

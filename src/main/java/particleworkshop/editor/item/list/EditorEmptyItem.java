@@ -19,7 +19,7 @@ public class EditorEmptyItem extends EditorItemBase<EmptyItem> {
 	}
 	
 	public EditorEmptyItem(EmptyItem item) {
-		super(item.getIdentifier());
+		super(item.getIdentifier(), item.getPosition());
 		unused = new SimpleIntegerProperty(item.getUnused());
 	}
 
@@ -31,8 +31,8 @@ public class EditorEmptyItem extends EditorItemBase<EmptyItem> {
 	@Override
 	public EmptyItem asStructure() {
 		EmptyItem struct = new EmptyItem();
-		
-		struct.setIdentifier(getIdentifier());
+
+		fillBaseStruct(struct);
 		struct.setUnused(unused.get());
 		
 		return struct;

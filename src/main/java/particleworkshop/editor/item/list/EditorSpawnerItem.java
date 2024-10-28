@@ -46,7 +46,7 @@ public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
 	}
 
 	public EditorSpawnerItem(EntitySpawnerItem item) {
-		super(item.getIdentifier());
+		super(item.getIdentifier(), item.getPosition());
 		mode = new SimpleObjectProperty<>(item.getMode());
 		frequency = new SimpleFloatProperty(item.getFrequency());
 		directions = new SimpleListProperty<SimpleFloatProperty>(FXCollections.observableArrayList());
@@ -68,7 +68,7 @@ public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
 	public EntitySpawnerItem asStructure() {
 		EntitySpawnerItem struct = new EntitySpawnerItem();
 
-		struct.setIdentifier(getIdentifier());
+		fillBaseStruct(struct);
 		struct.setMode(mode.get());
 		struct.setFrequency(frequency.get());
 		struct.setDirections(directions.stream().map(floatProperty -> floatProperty.get()).toList());

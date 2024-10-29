@@ -5,11 +5,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
@@ -100,6 +102,14 @@ public class DefaultWidgetFactory implements IWidgetFactory
 	@Override
 	public VBox packVertically(double spacing, Region... targets) {
 		return new VBox(spacing, targets);
+	}
+	
+	@Override
+	public CheckBox booleanInput(SimpleBooleanProperty subject) {
+		CheckBox cb = new CheckBox();
+		cb.setSelected(subject.get());
+		subject.bind(cb.selectedProperty());
+		return cb;
 	}
 	
 	@Override
@@ -296,7 +306,8 @@ public class DefaultWidgetFactory implements IWidgetFactory
 		Region output = null;
 		
 		// Find which type of control to create
-		if(fieldType == SimpleStringProperty.class) output = createTextField(obj, field); 
+		if(fieldType == SimpleBooleanProperty.class) output = booleanInput((SimpleBooleanProperty) field.get(obj));
+		else if(fieldType == SimpleStringProperty.class) output = createTextField(obj, field); 
 		else if(fieldType == SimpleFloatProperty.class) output = createFloatControl(obj, field);
 		else if(fieldType == SimpleIntegerProperty.class) output = createIntegerControl(obj, field);
 		else if(fieldType == SimpleObjectProperty.class) {
@@ -399,4 +410,5 @@ public class DefaultWidgetFactory implements IWidgetFactory
 		}
 		return control;
 	}
+
 }

@@ -2,10 +2,12 @@ package particleworkshop.editor.widgets.inspector;
 
 import java.util.List;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
@@ -35,6 +37,8 @@ public interface IWidgetFactory
 	HBox packHorizontally(double spacing, Region ...targets);
 	VBox packVertically(Region ...targets);
 	VBox packVertically(double spacing, Region ...targets);
+	
+	CheckBox booleanInput(SimpleBooleanProperty subject);
 	
 	TextField textInput(SimpleStringProperty subject);
 	TextField textInput(SimpleStringProperty subject, String regex);

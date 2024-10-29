@@ -1,6 +1,7 @@
 package particleworkshop.editor.widgets;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -16,6 +17,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import particleworkshop.common.exception.ObjectSerializationException;
 import particleworkshop.editor.EditorContext;
+import particleworkshop.editor.IEventList;
 import particleworkshop.editor.item.EditorItemBase;
 import particleworkshop.editor.widgets.inspector.DefaultWidgetFactory;
 import particleworkshop.editor.widgets.inspector.IWidgetFactory;
@@ -35,9 +37,9 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 		getStyleClass().add("item-inspector");
 		// setPrefWidth(DEFAULT_INSPECTOR_WIDTH);
 		getContext().addPropertyChangeListener(evt -> {
-			if(evt.getPropertyName().equals(context.EVT_SELECTED_ITEM))
+			if(evt.getPropertyName().equals(EVT_ITEM_SELECTED))
 				_selected = (EditorItemBase<?>) evt.getNewValue();
-			else if(evt.getPropertyName().equals(context.EVT_PROJECT_CHANGE) && evt.getNewValue() == null)
+			else if(evt.getPropertyName().equals(EVT_PROJECT_CHANGE) && evt.getNewValue() == null)
 				_selected = null;
 			else return;
 			reload();
@@ -63,6 +65,21 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 		}
 	}
 	
+	private Consumer<Control> defaultValueChangeHandler()
+	{
+		return (c) -> {
+			getContext().setUnsaved();
+			getContext().onItemChanged(c);
+		};
+	}
+	private Consumer<Control> defaultValueChangeHandler(final Consumer<Control> then)
+	{
+		return (c) -> {
+			defaultValueChangeHandler().accept(c);
+			then.accept(c);
+		};
+	}
+	
 	private void bindValueChangeListener(Node node)
 	{
 		if(node instanceof TitledPane) node = ((TitledPane) node).getContent();
@@ -81,27 +98,27 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 		// TODO : Create a UNDO and REDO list
 		if (control instanceof TextField) {
             ((TextField) control).textProperty().addListener((observable, _old, _new) -> {
-                getContext().setUnsaved();  // Your action for TextField
+                defaultValueChangeHandler().accept(control);
             });
         } else if (control instanceof CheckBox) {
             ((CheckBox) control).selectedProperty().addListener((observable, _old, _new) -> {
-                getContext().setUnsaved();  // Your action for CheckBox
+                defaultValueChangeHandler().accept(control);
             });
         } else if (control instanceof Slider) {
             ((Slider) control).valueProperty().addListener((observable, _old, _new) -> {
-                getContext().setUnsaved();  // Your action for Slider
+                defaultValueChangeHandler().accept(control);
             });
         } else if (control instanceof ToggleButton) {
             ((ToggleButton) control).selectedProperty().addListener((observable, _old, _new) -> {
-                getContext().setUnsaved();  // Your action for ToggleButton
+                defaultValueChangeHandler().accept(control);
             });
         } else if (control instanceof ComboBox<?>) {
             ((ComboBox<?>) control).valueProperty().addListener((observable, _old, _new) -> {
-                getContext().setUnsaved();  // Your action for ComboBox
+                defaultValueChangeHandler().accept(control);
             });
         } else if (control instanceof Spinner) {
         	((Spinner<?>) control).valueProperty().addListener((observable, _old, _new) -> {
-        		getContext().setUnsaved();
+                defaultValueChangeHandler().accept(control);
         	});
         }
 	}

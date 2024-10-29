@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Control;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -23,12 +24,8 @@ import particleworkshop.common.structures.project.SimulationStructure;
 import particleworkshop.editor.item.EditorItemBase;
 import particleworkshop.editor.item.EditorItemFactory;
 
-public class EditorContext
+public class EditorContext implements IEventList
 {	
-	public final String EVT_PROJECT_CHANGE = "ctx:project";
-	public final String EVT_PROJECT_RENAME = "ctx:rename";
-	public final String EVT_PROJECT_SAVE = "ctx:save";
-	public final String EVT_SELECTED_ITEM = "ctx:selectitem";
 	
 	private Stage _stage;
 	private Path _savePath;
@@ -253,14 +250,15 @@ public class EditorContext
 		
 		_editorItems.add(item);
 		_changesSaved = false;
-		_support.firePropertyChange(EVT_PROJECT_CHANGE, null, _project); // TODO : Only reload what is necessary (currently the hierarchy is completely rebuilt every time)
+		
+		_support.firePropertyChange(EVT_ITEM_CREATED, null, item);
 		selectItem(item);
 	}
 	
 	public void selectItem(EditorItemBase<?> item)
 	{
 		if(item != null && (_project == null || !_editorItems.contains(item))) return;
-		_support.firePropertyChange(EVT_SELECTED_ITEM, _selectedItem, item);
+		_support.firePropertyChange(EVT_ITEM_SELECTED, _selectedItem, item);
 		_selectedItem = item;
 	}
 
@@ -277,10 +275,14 @@ public class EditorContext
 	}
 
 	 public final void addPropertyChangeListener(PropertyChangeListener listener) {
-		 _support.addPropertyChangeListener(listener);
+		 _support.addPropertyChangeListener(listener); // TODO : Better way of doing that, either with enum as property identifiers or integers, but not strings anyways
 	 }
 
 	 public final void removePropertyChangeListener(PropertyChangeListener listener) {
 		 _support.removePropertyChangeListener(listener);
 	 }
+
+	public void onItemChanged(Control control) {
+		_support.firePropertyChange(EVT_ITEM_CHANGED, null, control);
+	}
 }

@@ -12,6 +12,7 @@ import particleworkshop.common.scene.PWScene;
 import particleworkshop.editor.item.EditorItemFactory;
 import particleworkshop.editor.widgets.EditorItemInspector;
 import particleworkshop.editor.widgets.EditorMenuBar;
+import particleworkshop.editor.widgets.EditorProjectDisplay;
 import particleworkshop.editor.widgets.EditorProjectHierarchy;
 import particleworkshop.editor.widgets.EditorToolbar;
 
@@ -22,6 +23,7 @@ public class EditorScene extends PWScene {
 	private EditorProjectHierarchy _hierarchy;
 	private EditorToolbar _toolbar;
 	private EditorItemInspector _inspector;
+	private EditorProjectDisplay _display;
 	
 	private EditorContext _context;
 
@@ -49,7 +51,7 @@ public class EditorScene extends PWScene {
 			updateTitle();
 		});
 		setOnMousePressed(event -> {
-			if(event.getSource() != getFocusOwner() && getFocusOwner() instanceof Node)
+			if(event.getSource() != getFocusOwner() && getFocusOwner() instanceof Node && getFocusOwner().getParent() != null)
 				getFocusOwner().getParent().requestFocus();
 		});
 	}
@@ -96,6 +98,7 @@ public class EditorScene extends PWScene {
 		_hierarchy = new EditorProjectHierarchy(getContext());
 		_toolbar = new EditorToolbar(getContext());
 		_inspector = new EditorItemInspector(getContext());
+		_display = new EditorProjectDisplay(getContext());
 
 		StackPane menuBarWithLabel = new StackPane(_menuBar, _projectNameLabel);
 		StackPane.setAlignment(_projectNameLabel, javafx.geometry.Pos.CENTER);
@@ -105,6 +108,7 @@ public class EditorScene extends PWScene {
 		root.setTop(topBox);
 		root.setLeft(_hierarchy);
 		root.setRight(inspectorPane);
+		root.setCenter(_display);
 		
 		updateTitle();
 	}

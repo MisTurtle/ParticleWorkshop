@@ -3,6 +3,7 @@ package particleworkshop.editor.item;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import particleworkshop.common.structures.ItemBase;
@@ -13,7 +14,6 @@ import particleworkshop.editor.widgets.inspector.annotations.HorizontalBlock;
 import particleworkshop.editor.widgets.inspector.annotations.Separator;
 
 public abstract class EditorItemBase<T extends ItemBase> implements IEditorItem<T> {
-	
 	@Controlled 
 	protected SimpleStringProperty name;
 	protected SimpleLongProperty uid;
@@ -68,9 +68,11 @@ public abstract class EditorItemBase<T extends ItemBase> implements IEditorItem<
 		return treeItem;
 	}
 	
-	protected void fillBaseStruct(ItemBase target)
+	protected final void fillBaseStruct(ItemBase target)
 	{
 		target.setIdentifier(getIdentifier());
 		target.setPosition(getPosition());
 	}
+	
+	public abstract Group render();
 }

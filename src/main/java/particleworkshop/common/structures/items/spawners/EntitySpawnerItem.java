@@ -16,6 +16,7 @@ import particleworkshop.common.structures.entities.EntityModel;
 public class EntitySpawnerItem extends ItemBase {
 	
 	private SpawnerMode mode = SpawnerMode.LINEAR;
+	private float radius = 25.f;
 	private float frequency = 5.0f;
 	private List<Float> directions = Arrays.asList(0.f); // Array of directions in which particles can be spawned
 	private EntityModel model = null;

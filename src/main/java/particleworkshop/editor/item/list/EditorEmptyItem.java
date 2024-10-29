@@ -1,7 +1,10 @@
 package particleworkshop.editor.item.list;
 
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import particleworkshop.common.structures.items.EmptyItem;
 import particleworkshop.editor.item.EditorItemBase;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
@@ -36,6 +39,12 @@ public class EditorEmptyItem extends EditorItemBase<EmptyItem> {
 		struct.setUnused(unused.get());
 		
 		return struct;
+	}
+
+	@Override
+	public Group render() {
+		Rectangle s = new Rectangle(20, 20, Color.RED);
+		return new Group(s);
 	}
 
 }

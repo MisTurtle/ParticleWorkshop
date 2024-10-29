@@ -1,12 +1,12 @@
 package particleworkshop.editor.item.list;
 
-import java.util.ArrayList;
-
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.scene.layout.Region;
+import javafx.scene.Group;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import particleworkshop.common.structures.entities.BoidsEntityModel;
 import particleworkshop.common.structures.entities.EntityModel;
 import particleworkshop.common.structures.entities.EntityType;
@@ -30,6 +30,11 @@ public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
 	@AsSlider(majorStepSize = 0.1f, displayPrecision = 1)
 	@UseFloatRange(min = 0.1f, max = 10.f)
 	private SimpleFloatProperty frequency;
+	
+	@Controlled(label = "Spawning Radius")
+	@AsSlider(majorStepSize = 0.1f, displayPrecision = 1)
+	@UseFloatRange(min = 0f, max = 50.f)
+	private SimpleFloatProperty radius;
 
 	@Controlled(label = "Directions")
 	private SimpleListProperty<SimpleFloatProperty> directions;
@@ -49,6 +54,7 @@ public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
 		super(item.getIdentifier(), item.getPosition());
 		mode = new SimpleObjectProperty<>(item.getMode());
 		frequency = new SimpleFloatProperty(item.getFrequency());
+		radius = new SimpleFloatProperty(item.getRadius());
 		directions = new SimpleListProperty<SimpleFloatProperty>(FXCollections.observableArrayList());
 		for (Float dir : item.getDirections())
 			directions.getValue().add(new SimpleFloatProperty(dir));
@@ -71,10 +77,28 @@ public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
 		fillBaseStruct(struct);
 		struct.setMode(mode.get());
 		struct.setFrequency(frequency.get());
+		struct.setRadius(radius.get());
 		struct.setDirections(directions.stream().map(floatProperty -> floatProperty.get()).toList());
 		struct.setModel(model.get());
 
 		return struct;
+	}
+
+	@Override
+	public Group render() {
+		Group g = new Group();
+		
+		Circle core = new Circle(radius.get());
+		core.setFill(Color.TRANSPARENT);
+		core.setStroke(Color.RED);
+		core.setStrokeWidth(3.f);
+		core.getStrokeDashArray().addAll(10.0, 5.0);
+	
+		
+		
+		g.getChildren().addAll(core); // TODO : Direction lines
+		
+		return g;
 	}
 
 }

@@ -3,6 +3,8 @@ package particleworkshop.editor.widgets;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import particleworkshop.editor.EditorContext;
+import particleworkshop.editor.IEventList;
+import particleworkshop.editor.item.EditorItemBase;
 
 public class EditorProjectHierarchy extends TreeView<String> implements IEditorWidget
 {
@@ -15,14 +17,19 @@ public class EditorProjectHierarchy extends TreeView<String> implements IEditorW
 		
 		// Setup listeners
 		context.addPropertyChangeListener(evt -> {
-			if(evt.getPropertyName().equals(context.EVT_PROJECT_CHANGE))
-				updateAll();
-			else if(evt.getPropertyName().equals(context.EVT_PROJECT_RENAME))
-				updateRoot();
+			if(evt.getPropertyName().equals(EVT_PROJECT_CHANGE)) updateAll();
+			else if(evt.getPropertyName().equals(EVT_PROJECT_RENAME)) updateRoot();
+			else if(evt.getPropertyName().equals(EVT_ITEM_CREATED))
+			{
+				if(evt.getNewValue() == null || !context.getEditorItems().contains(evt.getNewValue())) return;
+				else {
+					addItem((EditorItemBase<?>) evt.getNewValue());
+					getSelectionModel().select(context.getEditorItems().indexOf(evt.getNewValue()) + 1);
+				}
+			}
 		});
 
-		this.getSelectionModel().selectedIndexProperty().addListener((observer, oldVal, newVal) -> context.selectItemIndex(newVal.intValue() - 1));
-		
+		getSelectionModel().selectedIndexProperty().addListener((observer, oldVal, newVal) -> context.selectItemIndex(newVal.intValue() - 1));
 		updateRoot();
 	}
 
@@ -39,6 +46,11 @@ public class EditorProjectHierarchy extends TreeView<String> implements IEditorW
  			
 		TreeItem<String>[] treeItems = _context.getEditorItems().stream().map(item -> item.asTreeItem()).toArray(TreeItem[]::new);
 		getRoot().getChildren().setAll(treeItems);
+	}
+	
+	public void addItem(EditorItemBase<?> item)
+	{
+		getRoot().getChildren().add(item.asTreeItem());
 	}
 	
 	public void updateRoot()

@@ -23,6 +23,7 @@ import particleworkshop.common.structures.ItemBase;
 import particleworkshop.common.structures.project.SimulationStructure;
 import particleworkshop.editor.item.EditorItemBase;
 import particleworkshop.editor.item.EditorItemFactory;
+import particleworkshop.editor.widgets.inspector.SimulationSettingsAdapter;
 
 public class EditorContext implements IEventList
 {	
@@ -30,7 +31,10 @@ public class EditorContext implements IEventList
 	private Stage _stage;
 	private Path _savePath;
 	private boolean _changesSaved = true;
+	
 	private SimulationStructure _project;
+	private SimulationSettingsAdapter _projectSettings;
+	
 	private List<EditorItemBase<? extends ItemBase>> _editorItems = new ArrayList<EditorItemBase<? extends ItemBase>>();
 	private EditorItemBase<?> _selectedItem = null;
 	
@@ -56,6 +60,7 @@ public class EditorContext implements IEventList
 		_stage = stage;
 		_savePath = path;
 		_project = project;
+		_projectSettings = null;
 		_support = new PropertyChangeSupport(this);
 	}
 	
@@ -67,6 +72,13 @@ public class EditorContext implements IEventList
 	public SimulationStructure getProject()
 	{
 		return _project;
+	}
+	public SimulationSettingsAdapter getProjectSettings()
+	{
+		if(_project == null) return null;
+		else if(_projectSettings == null) _projectSettings = new SimulationSettingsAdapter(_project.getSettings());
+		
+		return _projectSettings;
 	}
 	
 	public Path getSavePath()
@@ -116,6 +128,7 @@ public class EditorContext implements IEventList
 		
 		SimulationStructure old = _project;
 		_project = new SimulationStructure();
+		_projectSettings = null;
 		
 		//reloadProjectContents();
 		_support.firePropertyChange(EVT_PROJECT_CHANGE, old, _project);
@@ -131,13 +144,6 @@ public class EditorContext implements IEventList
 		
 		if(location == null) return false;
 		
-		/* This is already checked by the file explorer as well
-		if(!location.exists() || !location.isFile())
-		{
-			Alert alert = new Alert(AlertType.ERROR, "No file could be found at the given path: \n" + location.toPath().toAbsolutePath(), ButtonType.CANCEL);
-			alert.showAndWait();
-			return false;
-		}*/
 		Path path = location.toPath().toAbsolutePath();
 
 		if(_project != null && !actCloseProject()) return false;
@@ -148,6 +154,7 @@ public class EditorContext implements IEventList
 			String projectContent = Files.readString(path);
 			SimulationStructure simDesc = mp.readValue(projectContent, SimulationStructure.class);
 			_project = simDesc;
+			_projectSettings = null;
 			reloadProjectContents();
 		}catch(IOException e)
 		{
@@ -171,6 +178,7 @@ public class EditorContext implements IEventList
 			ObjectMapper mp = new ObjectMapper();
 			List<ItemBase> items = _editorItems.stream().map(editorItem -> editorItem.asStructure()).collect(Collectors.toList());
 			_project.setItems((ArrayList<ItemBase>) items);
+			_project.setSettings(getProjectSettings().asSettingsContainer());
 			mp.writeValue(_savePath.toFile(), _project);
 			this._changesSaved = true;
 		} catch(IOException e) {
@@ -199,32 +207,6 @@ public class EditorContext implements IEventList
 		_changesSaved = false;
 		
 		return actSaveProject();
-		// Path path = location.toPath().toAbsolutePath();
-		/* This is already being taken care of by the file explorer apparently
-		if(Files.exists(location.toPath()))
-		{
-			
-			String message = "A file already exists at the following path: \n" + path + "\nDo you wish to proceed?";
-			Alert alert = new Alert(AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.CANCEL);
-			alert.showAndWait();
-			
-			if(alert.getResult() == ButtonType.CANCEL) return false;
-		}
-		*/
-		/* try {
-			Files.writeString(path, _project.serialize(), StandardOpenOption.CREATE);
-		}catch(IOException e)
-		{
-			Alert alert = new Alert(AlertType.ERROR, "An error occurred while saving your project: \n" + e.getMessage(), ButtonType.CANCEL);
-			alert.showAndWait();
-			return false;
-		}
-		
-		_changesSaved = true;
-		_savePath = path;
-		
-		_support.firePropertyChange(EVT_PROJECT_SAVE, false, true);
-		_support.firePropertyChange(EVT_PROJECT_RENAME, null, path);*/
 	}
 	
 	public boolean actCloseProject()
@@ -235,6 +217,7 @@ public class EditorContext implements IEventList
 		SimulationStructure projectSave = _project;
 		_savePath = null;
 		_project = null;
+		_projectSettings = null;
 		_changesSaved = true;
 		_editorItems.clear();
 

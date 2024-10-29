@@ -53,15 +53,15 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 	
 	public void reload()
 	{
-		if(_selected == null) getChildren().clear();
-		else {
-			try {
-				List<Region> widgets = DefaultWidgetFactory.getInstance(this).createWidgetsFor(_selected);
+		try {
+			if(_selected == null && _context.getProject() == null) getChildren().clear();
+			else {
+				List<Region> widgets = DefaultWidgetFactory.getInstance(this).createWidgetsFor(_selected == null ? _context.getProjectSettings() : _selected);
 				widgets.forEach(this::bindValueChangeListener);
 				getChildren().setAll(new VBox(IWidgetFactory.DEFAULT_VERTICAL_SPACING, widgets.toArray(Region[]::new)));
-			} catch (ObjectSerializationException e) {
-				e.printStackTrace();
 			}
+		} catch (ObjectSerializationException e) {
+			e.printStackTrace();
 		}
 	}
 	

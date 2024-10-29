@@ -28,12 +28,9 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 	
 	private void redrawProject()
 	{
-		System.out.println("Redrawing project");
 		getChildren().clear();
 		for(EditorItemBase<?> item: _context.getEditorItems())
-		{
 			createItem(item);
-		}
 	}
 	
 	private void createItem(EditorItemBase<?> item)

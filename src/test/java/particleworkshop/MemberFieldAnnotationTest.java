@@ -12,6 +12,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import particleworkshop.common.structures.entities.EntityShape;
 import particleworkshop.editor.widgets.inspector.annotations.AsSlider;
+import particleworkshop.editor.widgets.inspector.annotations.Controlled;
 import particleworkshop.editor.widgets.inspector.annotations.UseFloatRange;
 import particleworkshop.editor.widgets.inspector.annotations.UseIntRange;
 
@@ -24,6 +25,7 @@ public class MemberFieldAnnotationTest {
 		@AsSlider(majorStepSize = 0) @UseIntRange(min=0, max=20)
 		private SimpleIntegerProperty testInt = new SimpleIntegerProperty(5);
 		
+		@Controlled
 		private SimpleObjectProperty<EntityShape> testObj = new SimpleObjectProperty<>(EntityShape.CIRCULAR);
 	}
 	

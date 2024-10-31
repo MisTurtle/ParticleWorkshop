@@ -20,6 +20,7 @@ public class JsonLibraryTest {
 		
 		ObjectMapper mp = new ObjectMapper();
 		String mapAsStr = mp.writeValueAsString(testMap);
+		@SuppressWarnings("unchecked")
 		Map<String, Integer> readMap = mp.readValue(mapAsStr, HashMap.class);
 		
 		for(int i = 0; i < 100; ++i)

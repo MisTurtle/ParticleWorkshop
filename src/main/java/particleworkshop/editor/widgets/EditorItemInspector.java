@@ -23,8 +23,6 @@ import particleworkshop.editor.widgets.inspector.IWidgetFactory;
 
 public class EditorItemInspector extends VBox implements IEditorWidget
 {
-	private static final double DEFAULT_INSPECTOR_WIDTH = 175; // px
-	
 	private EditorContext _context;
 	private EditorItemBase<?> _selected;
 

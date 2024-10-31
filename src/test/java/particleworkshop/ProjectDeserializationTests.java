@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import particleworkshop.common.structures.ItemBase;
 import particleworkshop.common.structures.entities.BoidsEntityModel;
 import particleworkshop.common.structures.entities.EntityShape;
-import particleworkshop.common.structures.entities.ThermalParticleModel;
 import particleworkshop.common.structures.items.EmptyItem;
 import particleworkshop.common.structures.items.spawners.EntitySpawnerItem;
 import particleworkshop.common.structures.items.spawners.SpawnerMode;

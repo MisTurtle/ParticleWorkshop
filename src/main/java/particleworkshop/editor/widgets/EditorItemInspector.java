@@ -17,7 +17,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import particleworkshop.common.exception.ObjectSerializationException;
 import particleworkshop.editor.EditorContext;
-import particleworkshop.editor.IEventList;
 import particleworkshop.editor.item.EditorItemBase;
 import particleworkshop.editor.widgets.inspector.DefaultWidgetFactory;
 import particleworkshop.editor.widgets.inspector.IWidgetFactory;
@@ -69,7 +68,9 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 	{
 		return (c) -> {
 			getContext().setUnsaved();
-			getContext().onItemChanged(c);
+			
+			if(_selected == null) getContext().onSimulationSettingsChanged(); // Root node selected 
+			else getContext().onItemChanged(_selected);
 		};
 	}
 	private Consumer<Control> defaultValueChangeHandler(final Consumer<Control> then)

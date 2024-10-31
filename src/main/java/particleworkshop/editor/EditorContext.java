@@ -23,7 +23,6 @@ import particleworkshop.common.structures.ItemBase;
 import particleworkshop.common.structures.project.SimulationStructure;
 import particleworkshop.editor.item.EditorItemBase;
 import particleworkshop.editor.item.EditorItemFactory;
-import particleworkshop.editor.widgets.inspector.SimulationSettingsAdapter;
 
 public class EditorContext implements IEventList
 {	
@@ -265,7 +264,11 @@ public class EditorContext implements IEventList
 		 _support.removePropertyChangeListener(listener);
 	 }
 
-	public void onItemChanged(Control control) {
-		_support.firePropertyChange(EVT_ITEM_CHANGED, null, control);
+	public void onItemChanged(EditorItemBase<?> item) {
+		_support.firePropertyChange(EVT_ITEM_CHANGED, null, item);
+	}
+	
+	public void onSimulationSettingsChanged() {
+		_support.firePropertyChange(EVT_SIM_SETTINGS_CHANGED, null, getProjectSettings());
 	}
 }

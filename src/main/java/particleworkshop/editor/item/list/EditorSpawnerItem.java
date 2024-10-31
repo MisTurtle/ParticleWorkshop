@@ -93,9 +93,6 @@ public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
 		core.setStroke(Color.RED);
 		core.setStrokeWidth(3.f);
 		core.getStrokeDashArray().addAll(10.0, 5.0);
-	
-		
-		
 		g.getChildren().addAll(core); // TODO : Direction lines
 		
 		return g;

@@ -1,16 +1,18 @@
-package particleworkshop.editor.widgets.inspector;
+package particleworkshop.editor;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
+import lombok.Data;
 import particleworkshop.common.structures.project.SimulationSettingsContainer;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
 import particleworkshop.editor.widgets.inspector.annotations.HorizontalBlock;
 import particleworkshop.editor.widgets.inspector.annotations.UseFloatRange;
 
+@Data
 public class SimulationSettingsAdapter 
 {
 	@Controlled(label = "Target FPS")
-	@UseFloatRange(min=10, max=Float.MAX_VALUE)
+	@UseFloatRange(min=1, max=Float.MAX_VALUE)
 	private SimpleFloatProperty targetFps;
 	@Controlled(label = "Play Fullscreen")
 	private SimpleBooleanProperty fullscreen;

@@ -8,7 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import particleworkshop.common.structures.ItemBase;
 import particleworkshop.common.structures.ItemIdentifier;
-import particleworkshop.common.structures.ItemPosition;
+import particleworkshop.common.structures.Vector2;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
 import particleworkshop.editor.widgets.inspector.annotations.HorizontalBlock;
 import particleworkshop.editor.widgets.inspector.annotations.Separator;
@@ -24,7 +24,7 @@ public abstract class EditorItemBase<T extends ItemBase> implements IEditorItem<
 	@Separator(before=false, after=true)
 	protected SimpleFloatProperty y;
 	
-	public EditorItemBase(ItemIdentifier identifier, ItemPosition position)
+	public EditorItemBase(ItemIdentifier identifier, Vector2 position)
 	{
 		name = new SimpleStringProperty(identifier.getName());
 		uid = new SimpleLongProperty(identifier.getUID());
@@ -56,9 +56,9 @@ public abstract class EditorItemBase<T extends ItemBase> implements IEditorItem<
 	{
 		return y.get();
 	}
-	public ItemPosition getPosition()
+	public Vector2 getPosition()
 	{
-		return new ItemPosition((double) getX(), (double) getY());
+		return new Vector2((double) getX(), (double) getY());
 	}
 	
 	public TreeItem<String> asTreeItem()

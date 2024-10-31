@@ -3,7 +3,6 @@ package particleworkshop.editor.widgets;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import particleworkshop.editor.EditorContext;
-import particleworkshop.editor.IEventList;
 import particleworkshop.editor.item.EditorItemBase;
 
 public class EditorProjectHierarchy extends TreeView<String> implements IEditorWidget
@@ -26,6 +25,14 @@ public class EditorProjectHierarchy extends TreeView<String> implements IEditorW
 					addItem((EditorItemBase<?>) evt.getNewValue());
 					getSelectionModel().select(context.getEditorItems().indexOf(evt.getNewValue()) + 1);
 				}
+			}else if(evt.getPropertyName().equals(EVT_ITEM_SELECTED))
+			{
+				int index;
+				if(evt.getNewValue() == null || !context.getEditorItems().contains(evt.getNewValue())) index = 0;
+				else index = context.getEditorItems().indexOf(evt.getNewValue()) + 1;
+				
+				if(getRoot() == null || index == getSelectionModel().getSelectedIndex() || index > getRoot().getChildren().size()) return;
+				getSelectionModel().select(index);
 			}
 		});
 

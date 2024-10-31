@@ -9,4 +9,6 @@ public interface IEventList {
 	public final String EVT_ITEM_CREATED = "item:create";
 	public final String EVT_ITEM_DELETED = "item:delete";
 	public final String EVT_ITEM_CHANGED = "item:changed";
+	
+	public final String EVT_SIM_SETTINGS_CHANGED = "settings:changed";
 }

@@ -4,6 +4,7 @@ import java.nio.file.Path;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -104,11 +105,12 @@ public class EditorScene extends PWScene {
 		StackPane.setAlignment(_projectNameLabel, javafx.geometry.Pos.CENTER);
 		VBox topBox = new VBox(); topBox.getChildren().addAll(menuBarWithLabel, _toolbar); topBox.getStyleClass().add("darklight");
 		StackPane inspectorPane = new StackPane(_inspector);
-		
+
 		root.setTop(topBox);
-		root.setLeft(_hierarchy);
-		root.setRight(inspectorPane);
-		root.setCenter(_display);
+		SplitPane centerView = new SplitPane(_hierarchy, _display, inspectorPane);
+		centerView.setDividerPositions(0.1, 0.9, 1);
+		root.setCenter(centerView);
+
 		
 		updateTitle();
 	}

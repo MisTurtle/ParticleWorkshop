@@ -19,19 +19,19 @@ import particleworkshop.common.structures.items.spawners.EntitySpawnerItem;
 public class ItemBase
 {
 	private ItemIdentifier identifier;
-	private ItemPosition position;
+	private Vector2 position;
 	
 	public ItemBase()
 	{
 		identifier = new ItemIdentifier();
 		identifier.setName(getDefaultName());
-		position = new ItemPosition();
+		position = new Vector2();
 	}
 	
 	public ItemBase(ItemIdentifier identifier)
 	{
 		this.identifier = identifier;
-		position = new ItemPosition();
+		position = new Vector2();
 	}
 	
 	public void setIdentifier(ItemIdentifier identifier)
@@ -42,11 +42,11 @@ public class ItemBase
 	{
 		return identifier;
 	}
-	public void setPosition(ItemPosition position)
+	public void setPosition(Vector2 position)
 	{
 		this.position = position;
 	}
-	public ItemPosition getPosition()
+	public Vector2 getPosition()
 	{
 		return position;
 	}

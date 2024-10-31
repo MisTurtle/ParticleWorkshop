@@ -30,9 +30,12 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 	// Keep track of which group belongs to which object (maps an editor object's UID to a group object)
 	private Map<Long, Group> uidToGroupMap = new HashMap<>();
 	
-	// Mouse dragging operation origin
-	private double _dragOriginX = .0f;
-	private double _dragOriginY = .0f;
+	// Mouse position tracking relative to the editor
+	private double _cursorX = .0;
+	private double _cursorY = .0;
+	// Mouse dragging operation origin and previous step for delta computation
+	private double _dragOriginX = .0;
+	private double _dragOriginY = .0;
 	
 	// Size and coordinates of the simulation canvas
 	private SimpleFloatProperty _canvasWidth = new SimpleFloatProperty(.0f);
@@ -61,38 +64,6 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 		initialSetup();
 	}
 	
-	/*private Vector2 editorToCanvasCoordinates(Vector2 editorCoordinates)
-	{
-		return editorToCanvasCoordinates(editorCoordinates.getX(), editorCoordinates.getY());
-	}
-	
-	private Vector2 editorToCanvasCoordinates(double x, double y)
-	{
-		return new Vector2(x - _originX.get(), y - _originY.get());
-	}
-
-	private Vector2 canvasToEditorCoordinates(Vector2 canvasCoordinates)
-	{
-		return canvasToEditorCoordinates(canvasCoordinates.getX(), canvasCoordinates.getY());
-	}
-	
-	private Vector2 canvasToEditorCoordinates(double x, double y)
-	{
-		return canvasToEditorSize(x, y).add(_originX.get(), _originY.get());
-	}
-	
-	private Vector2 canvasToEditorSize(Vector2 canvasSize)
-	{
-		return canvasSize.add(canvasSize)
-	}
-	private Vector2 canvasToEditorSize(double width, double height)
-	{
-		return new Vector2(
-				width + width * (_zoomFactor.get() - 1),
-				height + height * (_zoomFactor.get() - 1)
-			);
-	}*/
-	
 	private Vector2 toEditorCoordinates(double x, double y) {
 		return toEditorCoordinates(new Vector2(x, y));
 	}
@@ -111,9 +82,14 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 	
 	private void updateDragOrigin(double x, double y)
 	{
-		System.out.printf("%f ; %f\n", x, y);
 		_dragOriginX = x;
 		_dragOriginY = y;
+	}
+	
+	private void updateCursorPosition(double x, double y)
+	{
+		_cursorX = x;
+		_cursorY = y;
 	}
 	
 	private void initialSetup()
@@ -122,9 +98,10 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 		this.setOnScroll(evt -> {
 			float target = evt.getDeltaY() > 0 ? (_zoomFactor.get() / ZOOM_FACTOR) : (_zoomFactor.get() * ZOOM_FACTOR);
 			target = Math.round(target * 1000.f) / 1000.f;
+			
 			_zoomFactor.set(Math.clamp(target, MIN_ZOOM_FACTOR, MAX_ZOOM_FACTOR));
-			System.out.println(_zoomFactor.get());
 		}); // Scrolling => Zooming in or out of the canvas
+		this.setOnMouseMoved(evt -> updateCursorPosition(evt.getX(), evt.getY()));
 		this.setOnMousePressed(evt -> updateDragOrigin(evt.getX(), evt.getY()));
 		this.setOnMouseDragged(evt -> {
 			if(evt.getButton() != MouseButton.PRIMARY) return; 
@@ -136,7 +113,15 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 		});
 		
 		// Redraw the scene when something about the canvas changes (zoom, position, ...)
-		_zoomFactor.addListener((observer, oldV, newV) -> updateAll());
+		_zoomFactor.addListener((observer, oldV, newV) -> {
+			// Move the canvas by some amount to zoom towards where the cursor is
+			double zf = newV.doubleValue() / oldV.doubleValue();
+			Vector2 canvasSize = toEditorSize(_canvasWidth.get(), _canvasHeight.get());
+			Vector2 ratio = new Vector2((_cursorX - _originX.get()) / canvasSize.getX(), (_cursorY - _originY.get()) / canvasSize.getY());
+			_originX.set((float) (_originX.get() - ratio.getX() * canvasSize.getX() * (zf - 1)));
+			_originY.set((float) (_originY.get() - ratio.getY() * canvasSize.getY() * (zf - 1)));
+			updateAll();
+		});
 		
 		// Setup canvas real size and height (Screen width and height).
 		_simScreen.setManaged(false); // This is required so that the user can resize the panes however they want, and to be able not to show the whole canvas at once
@@ -225,7 +210,6 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 		Vector2 cEnd = toEditorCoordinates(_canvasWidth.get(), _canvasHeight.get());
 		Vector2 gridSpacing = toEditorSize(100, 100);
 		
-		System.out.println("Origin : " + cOrigin.toString() + "  ;  End : " + cEnd.toString() + "  ;  Spacing : " + gridSpacing.toString());
 		if(gridSpacing.getX() <= 2) gridSpacing.setX(2);
 		if(gridSpacing.getY() <= 2) gridSpacing.setY(2);
 		
@@ -254,64 +238,6 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 			applyGroupTransforms(item, g);
 		}
 	}
-	
-	/*private void redraw()
-	{
-		if(_simScreen == null) return;
-		
-		_simScreen.setScaleX(_zoomFactor.get());
-		_simScreen.setScaleY(_zoomFactor.get());
-	}
-	
-	private void drawGrid()
-	{
-		if(_simScreen == null) return;
-		
-		GraphicsContext ctx = _simScreen.getGraphicsContext2D();
-		ctx.setFill(Color.rgb(0x20, 0x20, 0x20, 1.0));
-		ctx.fillRect(0, 0, _simScreen.getWidth(), _simScreen.getHeight());
-		ctx.setFill(Color.rgb(0x40, 0x40, 0x40, 1.0));
-		for(int x = 0; x < _simScreen.getWidth(); x += 20)
-			ctx.fillRect(x, 0, 1, _simScreen.getHeight());
-		for(int y = 0; y < _simScreen.getHeight(); y += 20)
-			ctx.fillRect(0, y, _simScreen.getWidth(), 1);
-	}
-	
-	private void setupCanvas()
-	{
-		_simScreen = null;
-		SimulationSettingsAdapter projectSettings = getContext().getProjectSettings();
-		if(projectSettings == null) return;
-		
-		// Create canvas and bind its size properties to the project
-		_simScreen = new Canvas();
-		_simScreen.widthProperty().bind(projectSettings.getCanvasWidth());
-		_simScreen.heightProperty().bind(projectSettings.getCanvasHeight());
-		_simScreen.getGraphicsContext2D().setFill(Color.web("#202020"));
-		
-		// Redraw the canvas grid when it is resized
-		ChangeListener<? super Number> resizeListener = (observable, oldV, newV) -> { drawGrid(); };
-		_simScreen.widthProperty().addListener(resizeListener);
-		_simScreen.heightProperty().addListener(resizeListener);
-		drawGrid();
-	}
-	
-	private void redrawProject()
-	{
-		getChildren().clear();
-		getChildren().add(_simScreen);
-		for(EditorItemBase<?> item: _context.getEditorItems())
-			createItem(item);
-	}
-	
-	private void createItem(EditorItemBase<?> item)
-	{
-		Group g = item.render();
-		g.setOnMouseClicked(evt -> _context.selectItem(item)); // TODO : Add arrows to move the object around
-		g.setOnMouseEntered(evt -> _context.getStage().getScene().setCursor(Cursor.MOVE));
-		g.setOnMouseExited(evt -> _context.getStage().getScene().setCursor(Cursor.DEFAULT));
-		getChildren().add(g);
-	}*/
 	
 	@Override
 	public EditorContext getContext() {

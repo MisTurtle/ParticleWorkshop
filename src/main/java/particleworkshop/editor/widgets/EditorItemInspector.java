@@ -40,7 +40,7 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 				_selected = (EditorItemBase<?>) evt.getNewValue();
 			else if(evt.getPropertyName().equals(EVT_PROJECT_CHANGE) && evt.getNewValue() == null)
 				_selected = null;
-			else return;
+			else if(!evt.getPropertyName().equals(EVT_ITEM_MOVED)) return;
 			reload();
 		});
 	}

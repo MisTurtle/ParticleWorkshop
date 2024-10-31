@@ -271,4 +271,8 @@ public class EditorContext implements IEventList
 	public void onSimulationSettingsChanged() {
 		_support.firePropertyChange(EVT_SIM_SETTINGS_CHANGED, null, getProjectSettings());
 	}
+
+	public void onItemMoved(EditorItemBase<?> owner) {
+		_support.firePropertyChange(EVT_ITEM_MOVED, null, owner);
+	}
 }

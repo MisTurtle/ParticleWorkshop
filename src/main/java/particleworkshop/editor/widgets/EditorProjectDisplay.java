@@ -26,6 +26,7 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 	private EditorContext _context;
 	private Canvas _simScreen = new Canvas();
 	private GraphicsContext _ctx = _simScreen.getGraphicsContext2D();
+	private boolean _settingUp = false;
 	
 	// Keep track of which group belongs to which object (maps an editor object's UID to a group object)
 	private Map<Long, Group> uidToGroupMap = new HashMap<>();
@@ -76,8 +77,24 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 		return toEditorSize(new Vector2(x, y));
 	}
 	private Vector2 toEditorSize(Vector2 canvasSize) {
+		// Editor Size = Canvas Size + Canvas Size * (zf - 1)
 		canvasSize.add(canvasSize.copy().multiply(_zoomFactor.get() - 1));
 		return canvasSize;
+	}
+	
+	private Vector2 toCanvasCoordinates(double x, double y) {
+		return toCanvasCoordinates(new Vector2(x, y));
+	}
+	private Vector2 toCanvasCoordinates(Vector2 editorCoordinates) {
+		return toCanvasSize(editorCoordinates).subtract(_originX.get(), _originY.get());
+	}
+	private Vector2 toCanvasSize(double x, double y) {
+		return toCanvasSize(new Vector2(x, y));
+	}
+	private Vector2 toCanvasSize(Vector2 editorSize) {
+		// Canvas Size = Editor Size / zf
+		editorSize.multiply(1 / _zoomFactor.get());
+		return editorSize;
 	}
 	
 	private void updateDragOrigin(double x, double y)
@@ -98,19 +115,10 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 		this.setOnScroll(evt -> {
 			float target = evt.getDeltaY() > 0 ? (_zoomFactor.get() / ZOOM_FACTOR) : (_zoomFactor.get() * ZOOM_FACTOR);
 			target = Math.round(target * 1000.f) / 1000.f;
-			
 			_zoomFactor.set(Math.clamp(target, MIN_ZOOM_FACTOR, MAX_ZOOM_FACTOR));
 		}); // Scrolling => Zooming in or out of the canvas
 		this.setOnMouseMoved(evt -> updateCursorPosition(evt.getX(), evt.getY()));
-		this.setOnMousePressed(evt -> updateDragOrigin(evt.getX(), evt.getY()));
-		this.setOnMouseDragged(evt -> {
-			if(evt.getButton() != MouseButton.PRIMARY) return; 
-			// Dragging the mouse changes the canvas origin of position
-			_originX.set(_originX.get() + (float) (evt.getX() - _dragOriginX));
-			_originY.set(_originY.get() + (float) (evt.getY() - _dragOriginY));
-			updateDragOrigin(evt.getX(), evt.getY());
-			updateAll();
-		});
+		this.setOnMousePressed(evt -> updateDragOrigin(evt.getSceneX(), evt.getSceneY()));
 		
 		// Redraw the scene when something about the canvas changes (zoom, position, ...)
 		_zoomFactor.addListener((observer, oldV, newV) -> {
@@ -127,13 +135,16 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 		_simScreen.setManaged(false); // This is required so that the user can resize the panes however they want, and to be able not to show the whole canvas at once
 		_simScreen.widthProperty().bind(widthProperty());
 		_simScreen.heightProperty().bind(heightProperty());
-		_simScreen.widthProperty().addListener((observer, oldV, newV) -> {
-			drawCanvas();
-			System.out.printf("New width : %f\n", newV);
-		});
-		_simScreen.heightProperty().addListener((observer, oldV, newV) -> {
-			drawCanvas();
-			System.out.printf("New height : %f\n", newV);
+		_simScreen.widthProperty().addListener((observer, oldV, newV) -> drawCanvas());
+		_simScreen.heightProperty().addListener((observer, oldV, newV) -> drawCanvas());
+
+		_simScreen.setOnMouseDragged(evt -> {
+			if(evt.getButton() != MouseButton.PRIMARY) return; 
+			// Dragging the mouse changes the canvas origin of position
+			_originX.set(_originX.get() + (float) (evt.getSceneX() - _dragOriginX));
+			_originY.set(_originY.get() + (float) (evt.getSceneY() - _dragOriginY));
+			updateDragOrigin(evt.getSceneX(), evt.getSceneY());
+			updateAll();
 		});
 	}
 	
@@ -146,21 +157,44 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 		
 		if(s == null) return;
 		
+		_settingUp = true;
 		_canvasWidth.bind(s.getCanvasWidth());
 		_canvasHeight.bind(s.getCanvasHeight());
 		_originX.set(0);
 		_originY.set(0);
 		_zoomFactor.set(1.f);
-		
+
 		getChildren().add(_simScreen);
 		getContext().getEditorItems().forEach(i -> addItem(i));
+		
+		_settingUp = false;
+		updateAll();
 	}
 	
 	private void bindGroupHandles(EditorItemBase<?> owner, Group g)
 	{
-		g.setOnMouseClicked(evt -> _context.selectItem(owner));
-		g.setOnMouseEntered(evt -> _context.getStage().getScene().setCursor(Cursor.MOVE));
-		g.setOnMouseExited(evt -> _context.getStage().getScene().setCursor(Cursor.DEFAULT));
+		g.setOnMouseClicked(evt -> {
+			_context.selectItem(owner);
+			updateDragOrigin(evt.getSceneX(), evt.getSceneY());
+		});
+		g.setOnMouseEntered(evt -> {
+			_context.getStage().getScene().setCursor(Cursor.MOVE);
+		});
+		g.setOnMouseExited(evt -> {
+			_context.getStage().getScene().setCursor(Cursor.DEFAULT);
+		});
+		g.setOnMouseDragged(evt -> {
+			Vector2 delta = new Vector2(evt.getSceneX() - _dragOriginX, evt.getSceneY() - _dragOriginY);
+			Vector2 canvasDelta = this.toCanvasSize(delta.copy());
+			Vector2 endpoint = owner.getPosition().add(canvasDelta);
+			owner.setPosition(endpoint);
+			g.setTranslateX(g.getTranslateX() + delta.getX());
+			g.setTranslateY(g.getTranslateY() + delta.getY());
+			
+			updateDragOrigin(evt.getSceneX(), evt.getSceneY());
+			getContext().onItemMoved(owner);
+			getContext().setUnsaved();
+		});
 	}
 	
 	private void applyGroupTransforms(EditorItemBase<?> owner, Group g)
@@ -232,6 +266,7 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 	
 	private void updateAll()
 	{
+		if(_settingUp) return;
 		drawCanvas();
 		for(EditorItemBase<?> item: getContext().getEditorItems())
 		{

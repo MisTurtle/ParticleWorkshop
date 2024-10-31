@@ -57,8 +57,13 @@ public abstract class EditorItemBase<T extends ItemBase> implements IEditorItem<
 		return y.get();
 	}
 	public Vector2 getPosition()
-	{
+	{ // TODO : Return the actual position as a class property. Make custom serializable classes for the inspector to serialize objects like vector2 into float inputs
 		return new Vector2((double) getX(), (double) getY());
+	}
+	public void setPosition(Vector2 pos)
+	{
+		x.set((float) pos.getX());
+		y.set((float) pos.getY());
 	}
 	
 	public TreeItem<String> asTreeItem()

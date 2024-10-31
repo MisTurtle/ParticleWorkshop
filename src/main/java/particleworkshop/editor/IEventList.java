@@ -9,6 +9,7 @@ public interface IEventList {
 	public final String EVT_ITEM_CREATED = "item:create";
 	public final String EVT_ITEM_DELETED = "item:delete";
 	public final String EVT_ITEM_CHANGED = "item:changed";
+	public final String EVT_ITEM_MOVED = "item:moved"; // Called when an item is moved from the scene editor and not the inspector
 	
 	public final String EVT_SIM_SETTINGS_CHANGED = "settings:changed";
 }

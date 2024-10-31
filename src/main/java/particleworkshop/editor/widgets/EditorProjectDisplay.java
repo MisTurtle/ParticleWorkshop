@@ -166,8 +166,9 @@ public class EditorProjectDisplay extends StackPane implements IEditorWidget {
 	private void applyGroupTransforms(EditorItemBase<?> owner, Group g)
 	{
 		g.setManaged(false);
-		g.setTranslateX(owner.getPosition().getX() + _originX.get());
-		g.setTranslateY(owner.getPosition().getY() + _originY.get());
+		Vector2 editorPos = this.toEditorCoordinates(owner.getPosition().copy());
+		g.setTranslateX(editorPos.getX());
+		g.setTranslateY(editorPos.getY());
 		g.setScaleX(_zoomFactor.get());
 		g.setScaleY(_zoomFactor.get());
 	}

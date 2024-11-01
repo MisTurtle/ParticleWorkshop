@@ -3,8 +3,10 @@ package particleworkshop.editor.widgets;
 import java.util.List;
 import java.util.function.Consumer;
 
+import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
@@ -62,9 +64,9 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 		}
 	}
 	
-	private Consumer<Control> defaultValueChangeHandler()
+	private Runnable defaultValueChangeHandler()
 	{
-		return (c) -> {
+		return () -> {
 			getContext().setUnsaved();
 			
 			if(_selected == null) getContext().onSimulationSettingsChanged(); // Root node selected 
@@ -74,7 +76,7 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 	private Consumer<Control> defaultValueChangeHandler(final Consumer<Control> then)
 	{
 		return (c) -> {
-			defaultValueChangeHandler().accept(c);
+			defaultValueChangeHandler().run();
 			then.accept(c);
 		};
 	}
@@ -85,39 +87,42 @@ public class EditorItemInspector extends VBox implements IEditorWidget
 		if(node instanceof Control) { bindValueChangeListener((Control) node); return; }
 		if(!(node instanceof Parent)) return;
 		
-		for(Node child: ((Parent) node).getChildrenUnmodifiable())
+		Parent asParent = (Parent) node;
+		for(Node child: asParent.getChildrenUnmodifiable())
 		{
 			if(child instanceof Control) bindValueChangeListener((Control) child);
 			else if(child instanceof Parent) bindValueChangeListener((Parent) child);
 		}
+		asParent.getChildrenUnmodifiable().addListener((ListChangeListener<? super Node>)(change) -> defaultValueChangeHandler().run());
 	}
 	
 	private void bindValueChangeListener(Control control)
 	{
 		// TODO : Create a UNDO and REDO list
+		System.out.println(control.getClass());
 		if (control instanceof TextField) {
             ((TextField) control).textProperty().addListener((observable, _old, _new) -> {
-                defaultValueChangeHandler().accept(control);
+                defaultValueChangeHandler().run();
             });
         } else if (control instanceof CheckBox) {
             ((CheckBox) control).selectedProperty().addListener((observable, _old, _new) -> {
-                defaultValueChangeHandler().accept(control);
+                defaultValueChangeHandler().run();
             });
         } else if (control instanceof Slider) {
             ((Slider) control).valueProperty().addListener((observable, _old, _new) -> {
-                defaultValueChangeHandler().accept(control);
+                defaultValueChangeHandler().run();
             });
         } else if (control instanceof ToggleButton) {
             ((ToggleButton) control).selectedProperty().addListener((observable, _old, _new) -> {
-                defaultValueChangeHandler().accept(control);
+                defaultValueChangeHandler().run();
             });
         } else if (control instanceof ComboBox<?>) {
             ((ComboBox<?>) control).valueProperty().addListener((observable, _old, _new) -> {
-                defaultValueChangeHandler().accept(control);
+                defaultValueChangeHandler().run();
             });
         } else if (control instanceof Spinner) {
         	((Spinner<?>) control).valueProperty().addListener((observable, _old, _new) -> {
-                defaultValueChangeHandler().accept(control);
+                defaultValueChangeHandler().run();
         	});
         }
 	}

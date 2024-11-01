@@ -5,6 +5,7 @@ import java.util.List;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.CheckBox;
@@ -19,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import particleworkshop.common.exception.ObjectSerializationException;
+import particleworkshop.common.exception.UnknownDefaultInputException;
 import particleworkshop.common.utils.color.ColorPropertyWrapper;
 
 public interface IWidgetFactory 
@@ -55,8 +57,10 @@ public interface IWidgetFactory
 	
 	<T extends Enum<T>> ChoiceBox<T> enumInput(SimpleObjectProperty<T> subject, Class<T> enumType);
 	ColorPicker colorInput(SimpleObjectProperty<ColorPropertyWrapper> subject);
+	<T> VBox listInput(SimpleListProperty<T> subject, Class<T> itemType);
 
 	Separator separator();
 	
 	List<Region> createWidgetsFor(Object obj) throws ObjectSerializationException;
+	<T> Region createDefaultInputFor(T property) throws UnknownDefaultInputException;
 }

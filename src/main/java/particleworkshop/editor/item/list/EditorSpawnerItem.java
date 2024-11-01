@@ -17,6 +17,7 @@ import particleworkshop.common.structures.items.spawners.SpawnerMode;
 import particleworkshop.editor.item.EditorItemBase;
 import particleworkshop.editor.widgets.inspector.annotations.AsSlider;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
+import particleworkshop.editor.widgets.inspector.annotations.ListData;
 import particleworkshop.editor.widgets.inspector.annotations.Separator;
 import particleworkshop.editor.widgets.inspector.annotations.TypeEnum;
 import particleworkshop.editor.widgets.inspector.annotations.UseFloatRange;
@@ -36,7 +37,8 @@ public class EditorSpawnerItem extends EditorItemBase<EntitySpawnerItem> {
 	@UseFloatRange(min = 0f, max = 50.f)
 	private SimpleFloatProperty radius;
 
-	@Controlled(label = "Directions")
+	@Controlled(label = "Directions", stackVertically = true)
+	@ListData(itemType = SimpleFloatProperty.class)
 	private SimpleListProperty<SimpleFloatProperty> directions;
 
 	@Separator(before = true, after = false)

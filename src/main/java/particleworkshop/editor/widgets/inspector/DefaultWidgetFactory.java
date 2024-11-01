@@ -1,16 +1,20 @@
 package particleworkshop.editor.widgets.inspector;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
@@ -26,11 +30,13 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import particleworkshop.common.exception.MissingAnnotationException;
 import particleworkshop.common.exception.ObjectSerializationException;
+import particleworkshop.common.exception.UnknownDefaultInputException;
 import particleworkshop.common.utils.color.ColorPropertyWrapper;
 import particleworkshop.editor.widgets.EditorItemInspector;
 import particleworkshop.editor.widgets.inspector.annotations.AsSlider;
 import particleworkshop.editor.widgets.inspector.annotations.Controlled;
 import particleworkshop.editor.widgets.inspector.annotations.HorizontalBlock;
+import particleworkshop.editor.widgets.inspector.annotations.ListData;
 import particleworkshop.editor.widgets.inspector.annotations.TypeEnum;
 import particleworkshop.editor.widgets.inspector.annotations.UseFloatRange;
 import particleworkshop.editor.widgets.inspector.annotations.UseIntRange;
@@ -221,6 +227,48 @@ public class DefaultWidgetFactory implements IWidgetFactory
 		cp.valueProperty().addListener((observer, oldV, newV) -> subject.set(new ColorPropertyWrapper(newV)));
 		return cp;
 	}
+	
+	@Override
+	public <T> VBox listInput(SimpleListProperty<T> subject, Class<T> itemType) {
+		VBox output = new VBox(DEFAULT_VERTICAL_SPACING);
+		Button addButton = new Button("+"); addButton.getStyleClass().add("list-add-button");
+		Consumer<T> createRow = itemVal -> {
+			Button delButton = new Button("-"); delButton.getStyleClass().add("list-del-button");
+			Region input;
+			try {
+				input = this.createDefaultInputFor(itemVal);
+			} catch (UnknownDefaultInputException e) {
+				e.printStackTrace();
+				return;
+			}
+			HBox row = packHorizontally(input, delButton);
+			row.setAlignment(Pos.CENTER_RIGHT);
+			delButton.setOnAction(delEvt -> output.getChildren().remove(row));
+			output.getChildren().add(output.getChildren().size() - 1, row);
+		};
+		
+		addButton.setOnAction(addEvt -> {
+			try {
+				T newItem = itemType.getConstructor().newInstance();
+				createRow.accept(newItem);
+				subject.add(newItem);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				e.printStackTrace();
+			}
+		});
+		HBox addButtonHBox = new HBox(addButton);
+		HBox.setHgrow(addButton, Priority.ALWAYS);
+		addButton.setPrefWidth(DEFAULT_V_CONTROL_WIDTH);
+		addButtonHBox.setPrefWidth(DEFAULT_V_CONTROL_WIDTH);
+		addButtonHBox.setAlignment(Pos.CENTER_RIGHT);
+		
+		output.getChildren().add(addButtonHBox);
+		for(T item: subject)
+			createRow.accept(item);
+		
+		return output;
+	}
 
 	@Override
 	public Separator separator() {
@@ -310,7 +358,11 @@ public class DefaultWidgetFactory implements IWidgetFactory
 		else if(fieldType == SimpleStringProperty.class) output = createTextField(obj, field); 
 		else if(fieldType == SimpleFloatProperty.class) output = createFloatControl(obj, field);
 		else if(fieldType == SimpleIntegerProperty.class) output = createIntegerControl(obj, field);
-		else if(fieldType == SimpleObjectProperty.class) {
+		else if(fieldType == SimpleListProperty.class) {
+			ListData listData = field.getAnnotation(ListData.class);
+			if(listData == null) throw new MissingAnnotationException("A serialized list property requires an annotation of type " + ListData.class.toString());
+			output = listInput((SimpleListProperty) field.get(obj), listData.itemType());
+		} else if(fieldType == SimpleObjectProperty.class) {
 			SimpleObjectProperty<?> property = (SimpleObjectProperty<?>) field.get(obj);
 			if(property.get() == null) return null;
 			
@@ -334,6 +386,15 @@ public class DefaultWidgetFactory implements IWidgetFactory
 		}
 		
 		return output;
+	}
+	
+	public <T> Region createDefaultInputFor(T property) throws UnknownDefaultInputException
+	{
+		if(property.getClass() == SimpleBooleanProperty.class) return booleanInput((SimpleBooleanProperty) property);
+		else if(property.getClass() == SimpleStringProperty.class) return textInput((SimpleStringProperty) property); 
+		else if(property.getClass() == SimpleFloatProperty.class) return numberInput((SimpleFloatProperty) property);
+		else if(property.getClass() == SimpleIntegerProperty.class) return numberInput((SimpleIntegerProperty) property);
+		else throw new UnknownDefaultInputException("No default input set for property of type " + property.getClass().toString());
 	}
 
 	private Region createFloatControl(Object obj, Field field) throws MissingAnnotationException, IllegalArgumentException, IllegalAccessException
